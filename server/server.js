@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const cloudinary = require('./config/cloudinary');
 const stripe = require('./config/stripe');
+const { sendVictoryEmail } = require('./config/email');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -52,6 +53,7 @@ mongoose.connect('mongodb://localhost:27017/bidding_app', {
 // User Schema
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   isAdmin: { type: Boolean, default: false },
   phoneNumber: { type: String },
@@ -94,6 +96,7 @@ async function createDefaultAdmin() {
       const hashedPassword = await bcrypt.hash('1234', 10);
       await User.create({
         username: 'admin',
+        email: 'auctionplatformcsit@gmail.com',
         password: hashedPassword,
         isAdmin: true
       });
@@ -168,10 +171,82 @@ app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
       { paymentStatus: 'completed' }
     );
 
+    // Send payment confirmation email
+    const { sendPaymentConfirmationEmail } = require('./config/email');
+    await sendPaymentConfirmationEmail(req.user, product);
+
     res.json({ message: 'Payment confirmed successfully' });
   } catch (error) {
     console.error('Error confirming payment:', error);
     res.status(500).json({ message: 'Error confirming payment' });
+  }
+});
+
+// Delete product endpoint
+app.delete('/api/products/:id', authenticateToken, async (req, res) => {
+  try {
+    // Check admin privileges
+    const user = await User.findById(req.user.id);
+    if (!user || !user.isAdmin) {
+      return res.status(403).json({
+        error: 'FORBIDDEN',
+        message: 'Only administrators can delete products'
+      });
+    }
+
+    // Validate product ID format
+    const productId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({
+        error: 'INVALID_ID',
+        message: 'Invalid product ID format'
+      });
+    }
+
+    // Find the product
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({
+        error: 'NOT_FOUND',
+        message: 'Product not found'
+      });
+    }
+
+    // Check if product has active bids
+    if (product.status === 'active') {
+      const activeBids = await Bid.countDocuments({ product: productId });
+      if (activeBids > 0) {
+        return res.status(400).json({
+          error: 'ACTIVE_BIDS',
+          message: 'Cannot delete product with active bids'
+        });
+      }
+    }
+
+    // Delete associated bids
+    await Bid.deleteMany({ product: productId });
+    
+    // Delete associated winning bids
+    await WinningBid.deleteMany({ product: productId });
+    
+    // Delete the product
+    const deletedProduct = await Product.findByIdAndDelete(productId);
+    if (!deletedProduct) {
+      throw new Error('Product deletion failed');
+    }
+
+    res.status(200).json({
+      message: 'Product and associated data deleted successfully',
+      productId: productId
+    });
+
+  } catch (error) {
+    console.error('Error in product deletion:', error);
+    res.status(500).json({
+      error: 'SERVER_ERROR',
+      message: 'An error occurred while deleting the product',
+      details: error.message
+    });
   }
 });
 
@@ -210,6 +285,12 @@ app.post('/api/products/:id/end-auction', authenticateToken, async (req, res) =>
       product.status = 'ended';
       product.winner = highestBid.bidder._id;
       await product.save();
+
+      // Send victory email to the winner
+      const winner = await User.findById(highestBid.bidder._id);
+      if (winner && winner.email) {
+        await sendVictoryEmail(winner, product);
+      }
 
       res.json({ winner: highestBid.bidder.username });
     } else {
@@ -271,9 +352,9 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
 
 app.post('/api/register', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, password: hashedPassword });
+    const user = await User.create({ username, email, password: hashedPassword });
     res.status(201).json({ message: 'User created successfully' });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -372,10 +453,28 @@ app.post('/api/products', authenticateToken, async (req, res) => {
     if (!req.user.isAdmin) {
       return res.status(403).json({ message: 'Only admin can create products' });
     }
-    const product = await Product.create({ ...req.body, seller: req.user.id });
+
+    const { name, description, startingPrice, currentPrice, endTime, imageUrl } = req.body;
+    
+    // Validate required fields
+    if (!name || !startingPrice || !endTime) {
+      return res.status(400).json({ message: 'Name, starting price, and end time are required' });
+    }
+
+    const product = await Product.create({
+      name,
+      description,
+      startingPrice,
+      currentPrice,
+      endTime,
+      imageUrl,
+      seller: req.user.id
+    });
+
     res.status(201).json(product);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Error creating product:', error);
+    res.status(500).json({ message: error.message || 'Error creating product' });
   }
 });
 

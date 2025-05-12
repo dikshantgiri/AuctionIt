@@ -7,6 +7,7 @@ import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
 function Register() {
   const [formData, setFormData] = useState({
     username: '',
+    email: '',
     password: '',
     confirmPassword: '',
     phoneNumber: '',
@@ -43,6 +44,7 @@ function Register() {
         credentials: 'include',
         body: JSON.stringify({
           username: formData.username,
+          email: formData.email,
           password: formData.password,
           phoneNumber: formData.phoneNumber,
           address: formData.address
@@ -82,6 +84,18 @@ function Register() {
                   id="username"
                   name="username"
                   value={formData.username}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="email" className="form-label">Email</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  id="email"
+                  name="email"
+                  value={formData.email}
                   onChange={handleChange}
                   required
                 />

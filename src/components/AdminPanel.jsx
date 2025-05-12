@@ -181,12 +181,21 @@ function AdminPanel() {
         const response = await fetch(`http://localhost:3000/api/products/${productId}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
 
         if (!response.ok) {
-          throw new Error('Failed to delete auction');
+          const errorText = await response.text();
+          let errorMessage;
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.message;
+          } catch (parseError) {
+            errorMessage = errorText || 'Failed to delete auction';
+          }
+          throw new Error(errorMessage);
         }
 
         toast.success('Auction deleted successfully!');

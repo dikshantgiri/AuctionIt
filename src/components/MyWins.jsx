@@ -5,7 +5,11 @@ import { faTrophy, faCreditCard, faCheck, faUser, faClock } from '@fortawesome/f
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY).catch(error => {
+  console.error('Failed to load Stripe:', error);
+  toast.error('Failed to initialize payment system. Please try again later.');
+  return null;
+});
 
 function PaymentForm({ winningBid, onSuccess }) {
   const stripe = useStripe();
@@ -46,7 +50,7 @@ function PaymentForm({ winningBid, onSuccess }) {
       }
 
       if (paymentIntent.status === 'succeeded') {
-        await fetch('http://localhost:3000/api/confirm-payment', {
+        const confirmResponse = await fetch('http://localhost:3000/api/confirm-payment', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -56,8 +60,12 @@ function PaymentForm({ winningBid, onSuccess }) {
             productId: winningBid.product._id
           })
         });
+
+        if (!confirmResponse.ok) {
+          throw new Error('Failed to confirm payment');
+        }
         
-        toast.success('Payment successful!');
+        toast.success('Payment successful! Check your email for confirmation.');
         onSuccess();
       }
     } catch (error) {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGavel, faClock, faFire, faTag, faGem } from '@fortawesome/free-solid-svg-icons';
+import { faGavel, faClock, faLock, faDesktop, faBoxOpen, faChartLine, faUserCheck, faHistory, faUserPlus, faSearch, faCrown, faTruck } from '@fortawesome/free-solid-svg-icons';
 
 function Home({ isAuthenticated }) {
   const [products, setProducts] = useState([]);
@@ -79,45 +79,15 @@ function Home({ isAuthenticated }) {
         <div className="container">
           <div className="row align-items-center">
             <div className="col-md-6">
-              <h1 className="display-4 fw-bold">Live Auction Platform</h1>
-              <p className="lead">Discover unique items and bid in real-time. Join our exciting auctions today!</p>
+              <h1 className="display-4 fw-bold text-white">Welcome to Auction It!</h1>
+              <p className="lead text-white">Your Ultimate Destination for Smart Bidding and Big Wins!</p>
+              <p className="text-white">At Auction It, we bring together buyers and sellers in a vibrant online marketplace where every bid counts. Whether you're looking to grab a rare collectible, score an amazing deal, or auction your own items for top dollar, we've got you covered.</p>
               {!isAuthenticated && (
                 <Link to="/register" className="btn btn-light btn-lg me-3">Get Started</Link>
               )}
             </div>
             <div className="col-md-6 text-center">
-              <FontAwesomeIcon icon={faGavel} size="6x" className="ms-auto d-none d-md-block" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Featured Categories */}
-      <div className="container mb-5">
-        <h2 className="text-center mb-4">Popular Categories</h2>
-        <div className="row g-4">
-          <div className="col-md-4">
-            <div className="card text-center h-100">
-              <div className="card-body">
-                <FontAwesomeIcon icon={faGem} size="3x" className="text-primary mb-3" />
-                <h5 className="card-title">Jewelry & Watches</h5>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="card text-center h-100">
-              <div className="card-body">
-                <FontAwesomeIcon icon={faTag} size="3x" className="text-success mb-3" />
-                <h5 className="card-title">Collectibles</h5>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="card text-center h-100">
-              <div className="card-body">
-                <FontAwesomeIcon icon={faFire} size="3x" className="text-danger mb-3" />
-                <h5 className="card-title">Hot Items</h5>
-              </div>
+              <FontAwesomeIcon icon={faGavel} size="6x" className="ms-auto d-none d-md-block text-white" />
             </div>
           </div>
         </div>
@@ -176,6 +146,112 @@ function Home({ isAuthenticated }) {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="container mb-5">
+        <div className="text-center mb-5">
+          <h2 className="display-5 fw-bold mb-4">🏠 Welcome to Auction It!</h2>
+          <p className="lead mb-4">Your Ultimate Destination for Smart Bidding and Big Wins!</p>
+          <p className="mb-5">At Auction It, we bring together buyers and sellers in a vibrant online marketplace where every bid counts. Whether you're looking to grab a rare collectible, score an amazing deal, or auction your own items for top dollar, we've got you covered.</p>
+        </div>
+
+        <div className="mb-5">
+          <h3 className="text-center mb-4">💥 Why Choose Auction It?</h3>
+          <div className="row g-4">
+            <div className="col-md-4">
+              <div className="d-flex align-items-start">
+                <FontAwesomeIcon icon={faClock} className="text-primary me-3 mt-1" size="2x" />
+                <div>
+                  <h5>Real-Time Bidding</h5>
+                  <p className="text-muted">Experience the thrill of live auctions from the comfort of your home.</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="d-flex align-items-start">
+                <FontAwesomeIcon icon={faLock} className="text-success me-3 mt-1" size="2x" />
+                <div>
+                  <h5>Secure Transactions</h5>
+                  <p className="text-muted">Safe payments powered by trusted payment gateways.</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="d-flex align-items-start">
+                <FontAwesomeIcon icon={faDesktop} className="text-info me-3 mt-1" size="2x" />
+                <div>
+                  <h5>User-Friendly Interface</h5>
+                  <p className="text-muted">Clean, responsive design across desktop and mobile.</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="d-flex align-items-start">
+                <FontAwesomeIcon icon={faUserCheck} className="text-warning me-3 mt-1" size="2x" />
+                <div>
+                  <h5>Verified Users</h5>
+                  <p className="text-muted">Only approved listings and trusted users.</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="d-flex align-items-start">
+                <FontAwesomeIcon icon={faHistory} className="text-danger me-3 mt-1" size="2x" />
+                <div>
+                  <h5>Transparent History</h5>
+                  <p className="text-muted">Stay informed with up-to-date bid tracking.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-5">
+          <h3 className="text-center mb-4">🎯 What Can You Do Here?</h3>
+          <div className="row g-4">
+            <div className="col-md-4">
+              <div className="d-flex align-items-start">
+                <FontAwesomeIcon icon={faUserPlus} className="text-primary me-3 mt-1" size="2x" />
+                <div>
+                  <h5>Register & Login</h5>
+                  <p className="text-muted">Create your account in seconds and join the auction action.</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="d-flex align-items-start">
+                <FontAwesomeIcon icon={faSearch} className="text-success me-3 mt-1" size="2x" />
+                <div>
+                  <h5>Explore Auctions</h5>
+                  <p className="text-muted">Browse a wide range of categories and place your bids.</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="d-flex align-items-start">
+                <FontAwesomeIcon icon={faCrown} className="text-warning me-3 mt-1" size="2x" />
+                <div>
+                  <h5>Win & Pay</h5>
+                  <p className="text-muted">If you win, pay securely and get your item delivered.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <h3 className="mb-4">🚀 Start Bidding Today!</h3>
+          <p className="lead mb-4">Join thousands of bidders and sellers making exciting deals daily. The next big win could be just one bid away.</p>
+          <p className="mb-4">Ready to get started?</p>
+          <div className="d-flex justify-content-center gap-3">
+            {!isAuthenticated && (
+              <>
+                <Link to="/register" className="btn btn-primary btn-lg">Sign Up Now</Link>
+                <Link to="/" className="btn btn-outline-primary btn-lg">Explore Auctions</Link>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

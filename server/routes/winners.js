@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Winner = require('../models/Winner');
 const auth = require('../middleware/auth');
+const { sendPaymentConfirmationEmail } = require('../config/email');
 
 // Get user's winning bids
 router.get('/my-wins', auth, async (req, res) => {
@@ -24,11 +25,14 @@ router.post('/confirm-payment', auth, async (req, res) => {
       { product: req.body.productId, user: req.user.id },
       { paymentStatus: 'completed' },
       { new: true }
-    );
+    ).populate('product');
 
     if (!winner) {
       return res.status(404).json({ message: 'Winner record not found' });
     }
+
+    // Send payment confirmation email
+    await sendPaymentConfirmationEmail(req.user, winner.product);
 
     res.json(winner);
   } catch (error) {

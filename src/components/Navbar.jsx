@@ -8,7 +8,7 @@ function Navbar({ isAuthenticated, isAdmin, onLogout }) {
       <div className="container-fluid px-4">
         <Link className="navbar-brand d-flex align-items-center" to="/">
           <FontAwesomeIcon icon={faGavel} className="me-2" />
-          Live Bidding
+          Auction It
         </Link>
         <button
           className="navbar-toggler border-0"
